@@ -34,11 +34,13 @@ This repository contains a suite of Linux scripts designed for performance monit
 
 ## Next Work
 
-In future versions, the tool will be enhanced to support installation on a regular hosting server. This will enable a single point of installation, simplifying deployment and maintenance across multiple nodes in multiple HPC environments.
+- In future versions, the tool will be enhanced to support installation on a regular hosting server. This will enable a single point of installation, simplifying deployment and maintenance across multiple nodes in multiple HPC environments.
+- Regular HPC user version will be supported.
 
 ## Limitations
 
-Currently, the tool is designed to work with Slurm for job scheduling and resource management. Support for additional workload managers and environments will be added in future updates to broaden the tool's compatibility and usability across different HPC setups.
+- Currently, the tool is designed to work with Slurm for job scheduling and resource management. Support for additional workload managers and environments will be added in future updates to broaden the tool's compatibility and usability across different HPC setups.
+- This is the root user version of the tool. Next versions will be for regular HPC users.
 
 ## Project Images
 
