@@ -35,11 +35,11 @@ This repository contains a suite of Linux scripts designed for performance monit
 ## Project Images
 
 <p align="center">
-  <img src="./Image1.jpg" alt="Image 1" width="50%">
-  <img src="./Image2.jpg" alt="Image 2" width="50%">
-  <img src="./Image3.jpg" alt="Image 3" width="50%">
-  <img src="./Image4.jpg" alt="Image 4" width="50%">
-  <img src="./Image5.jpg" alt="Image 5" width="50%">
+  <img src="./Image1.jpg" alt="Image 1" width="100%">
+  <img src="./Image2.jpg" alt="Image 2" width="100%">
+  <img src="./Image3.jpg" alt="Image 3" width="100%">
+  <img src="./Image4.jpg" alt="Image 4" width="100%">
+  <img src="./Image5.jpg" alt="Image 5" width="100%">
 </p>
 
 ## Contributing
