@@ -21,18 +21,18 @@ $node_stat[$i] = "idle";
 $cpu_usage[$i] = shell_exec ("sh $mydir/../sap_cpu.sh 2>&1"); $cpu_usage[$i] = str_replace(array("\n", "\r"), '', $cpu_usage[$i]);
 echo $node_array[$i]." CPU Usage: %".$cpu_usage[$i]."\n";
 $ram_usage[$i] = shell_exec ("sh $mydir/../sap_ram.sh 2>&1"); $ram_usage[$i] = str_replace(array("\n", "\r"), '', $ram_usage[$i]);
-$ram_usage_pieces2[$i] = explode("SERDAR ", $ram_usage[$i]); $ram_usage[$i] = $ram_usage_pieces2[$i][1]; $ram_usage_pieces[$i] = explode(" ", $ram_usage[$i]);
+$ram_usage_pieces2[$i] = explode("DELIMITORX ", $ram_usage[$i]); $ram_usage[$i] = $ram_usage_pieces2[$i][1]; $ram_usage_pieces[$i] = explode(" ", $ram_usage[$i]);
 $ram_usage_ram_available[$i] = $ram_usage_pieces[$i][0]; $ram_usage_ram_total[$i] = $ram_usage_pieces[$i][1]; $ram_usage_swap_used[$i] = (int)$ram_usage_pieces[$i][2];
 echo $node_array[$i]." RAM Available/Total/Swapused: ".$ram_usage_ram_available[$i]."/".$ram_usage_ram_total[$i]."/".$ram_usage_swap_used[$i]."\n";
 $write_speed[$i] = shell_exec ("sh $mydir/../sap_disk.sh $mydir/../ 2>&1"); $write_speed[$i] = str_replace(array("\n", "\r"), '', $write_speed[$i]);
-$write_speed_pieces1[$i] = explode("SERDAR ", $write_speed[$i]); $write_speed[$i] = $write_speed_pieces1[$i][1]; 
+$write_speed_pieces1[$i] = explode("DELIMITORX ", $write_speed[$i]); $write_speed[$i] = $write_speed_pieces1[$i][1]; 
 $write_speed_pieces2[$i] = explode(" ", $write_speed[$i]); $write_mbs[$i] = $write_speed_pieces2[$i][9]; $write_term[$i] = $write_speed_pieces2[$i][10];
 if ($write_term[$i] == "GB/s") $write_mbs[$i] = $write_mbs[$i] * 1000;
 echo $node_array[$i]." Disk Write Speed (MB/s): ".$write_mbs[$i]."\n";
 $nw_speed[$i] = shell_exec ("sh $mydir/../sap_nw_home.sh $home_ip 2>&1"); $nw_speed[$i] = str_replace(array("\n", "\r"), '', $nw_speed[$i]);
 if (stristr ($nw_speed[$i], "refused")) { $nw_mbs[$i] = "NA"; $msg_ek_nw[$i]=""; } 
 else { //else start
- $nw_speed_pieces1[$i] = explode("SERDAR ", $nw_speed[$i]); $nw_speed[$i] = $nw_speed_pieces1[$i][1];
+ $nw_speed_pieces1[$i] = explode("DELIMITORX ", $nw_speed[$i]); $nw_speed[$i] = $nw_speed_pieces1[$i][1];
  $nw_speed[$i] = preg_replace('/\s+/', ' ',$nw_speed[$i]);
  $nw_speed_pieces2[$i] = explode(" ", $nw_speed[$i]); $nw_mbs[$i] = $nw_speed_pieces2[$i][6]; $nw_term[$i] = $nw_speed_pieces2[$i][7];
  if ($nw_term[$i] == "Gbits/sec") $nw_mbs[$i] = $nw_mbs[$i] * 1000;
@@ -40,7 +40,7 @@ else { //else start
 echo $node_array[$i]." Network Speed Mbits/sec: ".$nw_mbs[$i]."\n";
 $gpu_word[$i]="NA";
 $top_processes[$i] = shell_exec ("sh $mydir/../sap_process.sh 2>&1");
-$top_processes_pieces1[$i] = explode("SERDAR ", $top_processes[$i]); $top_processes[$i] = $top_processes_pieces1[$i][1];
+$top_processes_pieces1[$i] = explode("DELIMITORX ", $top_processes[$i]); $top_processes[$i] = $top_processes_pieces1[$i][1];
 echo $node_array[$i]." Top Processes:".$top_processes[$i]."\n";
 echo "=================\n";
 ////////////////CPU USAGE
@@ -53,7 +53,7 @@ for ($i=1; $i<$max_nodes; $i++) { //for1 start
   ////////////////RAM USAGE
   $ram_usage[$i] = shell_exec ("ssh root@".$node_array[$i]." 'bash -s < $mydir/../sap_ram.sh' 2>&1");
   $ram_usage[$i] = str_replace(array("\n", "\r"), '', $ram_usage[$i]);
-  $ram_usage_pieces2[$i] = explode("SERDAR ", $ram_usage[$i]); $ram_usage[$i] = $ram_usage_pieces2[$i][1];
+  $ram_usage_pieces2[$i] = explode("DELIMITORX ", $ram_usage[$i]); $ram_usage[$i] = $ram_usage_pieces2[$i][1];
   $ram_usage_pieces[$i] = explode(" ", $ram_usage[$i]);
   $ram_usage_ram_available[$i] = $ram_usage_pieces[$i][0];
   $ram_usage_ram_total[$i] = $ram_usage_pieces[$i][1];
@@ -62,7 +62,7 @@ for ($i=1; $i<$max_nodes; $i++) { //for1 start
   ////////////////HOME DIRECTORY WRITE SPEED
 //  $write_speed[$i] = shell_exec ("ssh root@".$node_array[$i]." 'bash -s < $mydir/../sap_disk.sh $mydir/../' 2>&1");
   $write_speed[$i] = str_replace(array("\n", "\r"), '', $write_speed[$i]);
-  $write_speed_pieces1[$i] = explode("SERDAR ", $write_speed[$i]); $write_speed[$i] = $write_speed_pieces1[$i][1];
+  $write_speed_pieces1[$i] = explode("DELIMITORX ", $write_speed[$i]); $write_speed[$i] = $write_speed_pieces1[$i][1];
   $write_speed_pieces2[$i] = explode(" ", $write_speed[$i]); $write_mbs[$i] = $write_speed_pieces2[$i][9]; $write_term[$i] = $write_speed_pieces2[$i][10];
   if ($write_term[$i] == "GB/s") $write_mbs[$i] = $write_mbs[$i] * 1000; 
   echo $node_array[$i]." Disk Write Speed (MB/s): ".$write_mbs[$i]."\n";
@@ -72,7 +72,7 @@ for ($i=1; $i<$max_nodes; $i++) { //for1 start
   $nw_speed[$i] = str_replace(array("\n", "\r"), '', $nw_speed[$i]);
   if (stristr ($nw_speed[$i], "refused")) { $nw_mbs[$i] = "NA"; $msg_ek_nw[$i]=""; }
   else { //else start
-   $nw_speed_pieces1[$i] = explode("SERDAR ", $nw_speed[$i]); $nw_speed[$i] = $nw_speed_pieces1[$i][1];
+   $nw_speed_pieces1[$i] = explode("DELIMITORX ", $nw_speed[$i]); $nw_speed[$i] = $nw_speed_pieces1[$i][1];
    $nw_speed[$i] = preg_replace('/\s+/', ' ',$nw_speed[$i]);
    $nw_speed_pieces2[$i] = explode(" ", $nw_speed[$i]); $nw_mbs[$i] = $nw_speed_pieces2[$i][6]; $nw_term[$i] = $nw_speed_pieces2[$i][7];
    if ($nw_term[$i] == "Gbits/sec") $nw_mbs[$i] = $nw_mbs[$i] * 1000; 
@@ -98,7 +98,7 @@ for ($i=1; $i<$max_nodes; $i++) { //for1 start
   echo $node_array[$i]." GPUs/Utilization: ".$gpu_word[$i]."\n";
   ////////////////TOP PROCESSES
   $top_processes[$i] = shell_exec ("ssh root@".$node_array[$i]." 'bash -s < $mydir/../sap_process.sh' 2>&1");
-  $top_processes_pieces1[$i] = explode("SERDAR ", $top_processes[$i]); $top_processes[$i] = $top_processes_pieces1[$i][1];
+  $top_processes_pieces1[$i] = explode("DELIMITORX ", $top_processes[$i]); $top_processes[$i] = $top_processes_pieces1[$i][1];
   echo $node_array[$i]." Top Processes:".$top_processes[$i]."\n";
   } //bigif end
   else {

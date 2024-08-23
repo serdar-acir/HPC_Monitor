@@ -1,0 +1,2 @@
+# Put this folder to the login node of the HPC cluster that you want to monitor
+# You can name HPC1.config to the name of your cluster such as my_cluster.config. "my_cluster" section will be displayed on the monitoing tool as the cluster name.

@@ -7,4 +7,4 @@
 HOME_IP=$1;
 home_nw_speed=$(iperf3 -c $HOME_IP -t 5)
 thatLine=`echo "${home_nw_speed}" | sed -n '7 p'`
-echo "SERDAR $thatLine"
+echo "DELIMITORX $thatLine"
