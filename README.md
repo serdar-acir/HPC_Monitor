@@ -32,6 +32,16 @@ This repository contains a suite of Linux scripts designed for performance monit
 - MySQL database server.
 - Web server.
 
+## Project Images
+
+<p align="center">
+  <img src="./Image1.jpg" alt="Image 1" width="50%">
+  <img src="./Image2.jpg" alt="Image 2" width="50%">
+  <img src="./Image3.jpg" alt="Image 3" width="50%">
+  <img src="./Image4.jpg" alt="Image 4" width="50%">
+  <img src="./Image5.jpg" alt="Image 5" width="50%">
+</p>
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs or feature requests.
