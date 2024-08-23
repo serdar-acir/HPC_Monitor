@@ -1,0 +1,7 @@
+# Put this folder to the login node of the HPC cluster that you want to monitor
+# Modify the HPC1.config file according to your HPC cluster setup
+# You can name HPC1.config to the name of your cluster such as my_cluster.config. "my_cluster" section will be displayed on the monitoing tool as the cluster name.
+
+# COLLECTING CLUSTER DATA
+# make sure the hosting server is set up first and working.
+# run collect_data/data_collect.sh on the login node 'once'. This will collect the cluster infrastructure data and send it to the hosting server.

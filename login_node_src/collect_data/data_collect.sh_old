@@ -1,0 +1,38 @@
+#!/bin/bash
+####################################
+##written by: serdar acir
+##serdar.acir@sabanciuniv.edu
+####################################
+        echo "hedef: login"
+        inxi -M > /cta/users/sacir/monitoring/root_version/TosunHPC_login_0_machine.txt
+        inxi -C > /cta/users/sacir/monitoring/root_version/TosunHPC_login_1_cpu.txt
+        inxi -m > /cta/users/sacir/monitoring/root_version/TosunHPC_login_2_memory.txt
+        inxi -Gx > /cta/users/sacir/monitoring/root_version/TosunHPC_login_3_graphics.txt
+        inxi -i > /cta/users/sacir/monitoring/root_version/TosunHPC_login_4_network.txt
+        inxi -D > /cta/users/sacir/monitoring/root_version/TosunHPC_login_5_drives.txt
+        inxi -p > /cta/users/sacir/monitoring/root_version/TosunHPC_login_6_partition.txt
+        inxi -o > /cta/users/sacir/monitoring/root_version/TosunHPC_login_7_unmounted.txt
+        inxi -L > /cta/users/sacir/monitoring/root_version/TosunHPC_login_8_logical.txt
+        inxi -R > /cta/users/sacir/monitoring/root_version/TosunHPC_login_9_raid.txt
+        inxi -S > /cta/users/sacir/monitoring/root_version/TosunHPC_login_10_system.txt
+        inxi --slots > /cta/users/sacir/monitoring/root_version/TosunHPC_login_11_pci-slots.txt
+
+for i in cn01 cn02 cn03 cn04 cn05 cn06 cn07 cn08 cn09 cn10 cn11 cn14 cn15 gpu01 mem01
+do
+        echo "hedef: $i"
+        ssh root@${i} "inxi -M > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_0_machine.txt"
+        ssh root@${i} "inxi -C > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_1_cpu.txt"
+        ssh root@${i} "inxi -m > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_2_memory.txt"
+        ssh root@${i} "inxi -Gx > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_3_graphics.txt"
+        ssh root@${i} "inxi -i > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_4_network.txt"
+        ssh root@${i} "inxi -D > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_5_drives.txt"
+        ssh root@${i} "inxi -p > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_6_partition.txt"
+        ssh root@${i} "inxi -o > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_7_unmounted.txt"
+        ssh root@${i} "inxi -L > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_8_logical.txt"
+        ssh root@${i} "inxi -R > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_9_raid.txt"
+        ssh root@${i} "inxi -S > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_10_system.txt"
+        ssh root@${i} "inxi --slots > /cta/users/sacir/monitoring/root_version/TosunHPC_${i}_11_pci-slots.txt"
+done
+scp /cta/users/sacir/monitoring/root_version/*.txt root@hpc.sabanciuniv.edu:/var/www/html/run_as_root/
+/bin/rm -f /cta/users/sacir/monitoring/root_version/*.txt
+ssh root@hpc.sabanciuniv.edu "touch /var/www/html/run_as_root/do_all"

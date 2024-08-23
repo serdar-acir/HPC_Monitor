@@ -19,12 +19,12 @@ This repository contains a suite of Linux scripts designed for performance monit
 
 ## Usage
 
-1. Clone this repository to your local environment.
-2. Configure the scripts according to your specific HPC environment needs.
-3. Define the desired benchmarking intervals and parameters.
-4. Deploy the scripts on your login node.
-5. Setup a maria-db based web server to collect data
-6. Access the performance monitoring GUI through the provided MySQL web server to view the collected data.
+1. Clone this repository to the root environment on the login node.
+2. Setup a separate maria-db based web server on a hosting platform. Make sure it is accessible and Mysql port 3306 is open on the server.
+3. At login node access to the login_node_src folder and configure HPC1.config file according to your specific HPC environment needs as described in its README file.
+4. Run login_node_src/collect_data/data_collect.sh once (to collect HPC infrastructure data) and make sure the data is sent to the hosting server successfully. 
+5. Access the performance monitoring GUI through the web server to view the collected data.
+6. Define the desired benchmarking intervals and parameters.
 
 ## Requirements
 
@@ -34,13 +34,12 @@ This repository contains a suite of Linux scripts designed for performance monit
 
 ## Limitations
 
-- Currently, the tool is designed to work with Slurm for job scheduling and resource management. Support for additional workload managers and environments will be added in future updates to broaden the tool's compatibility and usability across different HPC setups.
-- This is the root user version of the tool. Next versions will be for regular HPC users.
+- This is the root user version of the tool. Root access to the HPC environment is required at the moment. But regular user accounts can be used on the hosting server.
 
 ## Next Work
 
-- In future versions, the tool will be enhanced to support installation on a regular hosting server. This will enable a single point of installation, simplifying deployment and maintenance across multiple nodes in multiple HPC environments.
-- Regular HPC user version will be supported.
+- A work is underway to support the tool to work with Slurm for job scheduling and resource management. This will enable regular HPC users to run the tool in the future. Support for additional workload managers and environments will be added in future updates to broaden the tool's compatibility and usability across different HPC setups.
+- In future versions, the tool will be enhanced to support single point of installation on a regular hosting server. This will enable a single point of installation, simplifying deployment and maintenance across multiple HPC environments for regular users.
 
 ## Project Images
 
