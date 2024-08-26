@@ -1,0 +1,151 @@
+body {background-color: powderblue;}
+h1   {color: blue;}
+p    {color: red;}
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+table th {
+  border-bottom: 1px solid #e9e9e9;
+}
+
+table thead td,
+td {
+  border-left: 1px solid #f2f2f2;
+  border-right: 1px solid #d5d5d5;
+  background: #ddd repeat-x scroll 0 100%;
+  font-weight: normal;
+  text-align: left;
+}
+
+table tr td,
+td {
+  border: 1px solid #D5D5D5;
+  padding: 3px;
+}
+
+table th:hover {
+  background: #fcfcfc;
+}
+
+table th ul.actions {
+  margin: 0;
+}
+
+table th ul.actions li {
+  display: inline;
+  margin-right: 5px;
+}
+
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+}
+
+
+
+
+
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 720px;
+  background-color: black;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 5px 5px;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 105%;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+
+
+.blue {   background: grey; } 
+
+/* Dashed border for the entire table */
+table.dashed-table {
+    border-collapse: collapse;
+    border: 2px dashed black;
+}
+
+/* Dashed borders for the table cells (td) and headers (th) */
+.dashed-table th, .dashed-table td {
+    border: 2px dashed black;
+     padding: 10px;
+}
+
+
+        .alert-box {
+            padding: 20px;
+            background-color: #ffcccc; /* Light red */
+            color: #333; /* Dark text */
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            border-left: 6px solid #f44336; /* Red border */
+            position: relative;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .alert-box .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #333;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .alert-box .close-btn:hover {
+            color: #f44336; /* Red */
+        }
