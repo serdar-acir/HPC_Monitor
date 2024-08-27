@@ -29,8 +29,8 @@ This repository contains a suite of Linux scripts designed for performance monit
 
 ## Requirements
 
-- Linux-based HPC environment: inxi
-- Hosting environment: Apache2, PHP7, Mysql8, jpgraph
+- Linux-based HPC environment: PHP7, iperf3, inxi
+- Hosting environment: Apache2, PHP7, Mysql8
 
 ## Limitations
 
