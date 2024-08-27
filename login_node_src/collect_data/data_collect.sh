@@ -1,49 +1,62 @@
 #!/bin/bash
 ####################################
-##written by: serdar acir
-##serdar.acir@sabanciuniv.edu
+## written by: serdar acir
+## serdar.acir@sabanciuniv.edu
 ####################################
 
-source ../HPC1.config
-COLLECT_DIR="$HOME/HPC_Monitor/root_version"
-mkdir -p $COLLECT_DIR
+# Ensures the script is run with Bash
+if [ -z "$BASH_VERSION" ]; then
+    echo "This script requires Bash to run."
+    exit 1
+fi
+
+config_file=(../*.config)
+first_config="${config_file[0]}"
+if [ ! -f "$first_config" ]; then
+    echo "Config file not found."
+    exit 1
+fi
+
+# Execute PHP script to extract cluster name and node array
+IFS=$'\n' read -r -d '' -a output < <(php extract_config.php || echo "Failed to execute PHP.")
+cluster_name="${output[0]}"  # First line is cluster name
+node_array=("${output[@]:1}")  # Remaining lines are node names
 
 collect_data() {
     local node=$1
     echo "Collecting data from: $node"
-    ssh root@${node} "inxi -M > ${COLLECT_DIR}/TosunHPC_${node}_0_machine.txt"
-    ssh root@${node} "inxi -C > ${COLLECT_DIR}/TosunHPC_${node}_1_cpu.txt"
-    ssh root@${node} "inxi -m > ${COLLECT_DIR}/TosunHPC_${node}_2_memory.txt"
-    ssh root@${node} "inxi -Gx > ${COLLECT_DIR}/TosunHPC_${node}_3_graphics.txt"
-    ssh root@${node} "inxi -i > ${COLLECT_DIR}/TosunHPC_${node}_4_network.txt"
-    ssh root@${node} "inxi -D > ${COLLECT_DIR}/TosunHPC_${node}_5_drives.txt"
-    ssh root@${node} "inxi -p > ${COLLECT_DIR}/TosunHPC_${node}_6_partition.txt"
-    ssh root@${node} "inxi -o > ${COLLECT_DIR}/TosunHPC_${node}_7_unmounted.txt"
-    ssh root@${node} "inxi -L > ${COLLECT_DIR}/TosunHPC_${node}_8_logical.txt"
-    ssh root@${node} "inxi -R > ${COLLECT_DIR}/TosunHPC_${node}_9_raid.txt"
-    ssh root@${node} "inxi -S > ${COLLECT_DIR}/TosunHPC_${node}_10_system.txt"
-    ssh root@${node} "inxi --slots > ${COLLECT_DIR}/TosunHPC_${node}_11_pci-slots.txt"
+    if [[ "$node" =~ ^(login|headnode|monitor)$ ]]; then
+        # Run commands directly for specific nodes
+        inxi -M > "${cluster_name}_${node}_0_machine.txt"
+        inxi -C > "${cluster_name}_${node}_1_cpu.txt"
+        inxi -m > "${cluster_name}_${node}_2_memory.txt"
+        inxi -Gx > "${cluster_name}_${node}_3_graphics.txt"
+        inxi -i > "${cluster_name}_${node}_4_network.txt"
+        inxi -D > "${cluster_name}_${node}_5_drives.txt"
+        inxi -p > "${cluster_name}_${node}_6_partition.txt"
+        inxi -o > "${cluster_name}_${node}_7_unmounted.txt"
+        inxi -L > "${cluster_name}_${node}_8_logical.txt"
+        inxi -R > "${cluster_name}_${node}_9_raid.txt"
+        inxi -S > "${cluster_name}_${node}_10_system.txt"
+        inxi --slots > "${cluster_name}_${node}_11_pci-slots.txt"
+    else
+        # Use SSH for other nodes
+ssh root@"$node" "inxi -M" > "${cluster_name}_${node}_0_machine.txt"
+ssh root@"$node" "inxi -C" > "${cluster_name}_${node}_1_cpu.txt"
+ssh root@"$node" "inxi -m" > "${cluster_name}_${node}_2_memory.txt"
+ssh root@"$node" "inxi -Gx" > "${cluster_name}_${node}_3_graphics.txt"
+ssh root@"$node" "inxi -i" > "${cluster_name}_${node}_4_network.txt"
+ssh root@"$node" "inxi -D" > "${cluster_name}_${node}_5_drives.txt"
+ssh root@"$node" "inxi -p" > "${cluster_name}_${node}_6_partition.txt"
+ssh root@"$node" "inxi -o" > "${cluster_name}_${node}_7_unmounted.txt"
+ssh root@"$node" "inxi -L" > "${cluster_name}_${node}_8_logical.txt"
+ssh root@"$node" "inxi -R" > "${cluster_name}_${node}_9_raid.txt"
+ssh root@"$node" "inxi -S" > "${cluster_name}_${node}_10_system.txt"
+ssh root@"$node" "inxi --slots" > "${cluster_name}_${node}_11_pci-slots.txt"
+    fi
 }
 
-echo "Collecting data from login node"
-inxi -M > ${COLLECT_DIR}/TosunHPC_login_0_machine.txt
-inxi -C > ${COLLECT_DIR}/TosunHPC_login_1_cpu.txt
-inxi -m > ${COLLECT_DIR}/TosunHPC_login_2_memory.txt
-inxi -Gx > ${COLLECT_DIR}/TosunHPC_login_3_graphics.txt
-inxi -i > ${COLLECT_DIR}/TosunHPC_login_4_network.txt
-inxi -D > ${COLLECT_DIR}/TosunHPC_login_5_drives.txt
-inxi -p > ${COLLECT_DIR}/TosunHPC_login_6_partition.txt
-inxi -o > ${COLLECT_DIR}/TosunHPC_login_7_unmounted.txt
-inxi -L > ${COLLECT_DIR}/TosunHPC_login_8_logical.txt
-inxi -R > ${COLLECT_DIR}/TosunHPC_login_9_raid.txt
-inxi -S > ${COLLECT_DIR}/TosunHPC_login_10_system.txt
-inxi --slots > ${COLLECT_DIR}/TosunHPC_login_11_pci-slots.txt
-
 for node in "${node_array[@]}"; do
-    collect_data $node
+    collect_data "$node"
 done
-
-scp ${COLLECT_DIR}/*.txt root@${mysql_host}:/var/www/html/run_as_root/
-/bin/rm -f ${COLLECT_DIR}/*.txt
-ssh root@${mysql_host} "touch /var/www/html/run_as_root/do_all"
 

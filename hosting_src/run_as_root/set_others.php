@@ -4,17 +4,13 @@
 //////serdar.acir@sabanciuniv.edu////////////
 /////////////////////////////////////////////
 error_reporting(E_ERROR | E_PARSE);
-$filename = "/var/www/html/hpc.sabanciuniv.edu/run_as_root/do_all";
-if (! file_exists($filename) ) {
-    echo "The file $filename does not exist\n"; exit;
-}
-
 require "../mysql_ops.php";
 connect_db_tr ($database);
 $ilk_silis = 1;
 $report_time = date('Y-m-d H:i:s', time());
 
 $allfiles = scandir(getcwd());
+echo "Data transfer in progress<br>\n";
 foreach ($allfiles as $file) {
  if (strstr($file, '.txt')) {
   $file_name = substr($file, 0, -4);
@@ -36,7 +32,7 @@ foreach ($allfiles as $file) {
  }
 }
 disconnect_db_tr ();
-unlink ( $filename );
+echo "COMPLETED";
 
 function check_format ($cluster_name, $node_name, $category, $filetext) {
 if ($category == "memory" AND stristr ($filetext, "Device-32") ) { //if1 start

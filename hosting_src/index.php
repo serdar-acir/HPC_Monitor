@@ -24,7 +24,7 @@ else { $cluster_name_word = $cluster_name."_selected";  $$cluster_name_word = "s
 $cl_index = array_search($cluster_name, $clusters);
 if ($index !== false) { $desc = $descs[$index]; } else { $desc = ""; }
 
-$adm_link = "<font size=-3><i><a href=\"https://hpc.sabanciuniv.edu/admin.php?$mylink\">admin</a></i></font>";
+$adm_link = "<font size=-3><i><a href=\"/admin.php?$mylink\">admin</a></i></font>";
 
 //en son report_time al
 $cluster_name_i = strtoupper (str_replace("HPC", '', $cluster_name));
@@ -92,7 +92,7 @@ foreach ($clusters as $cluster) {
 }
 
 echo "</select></td> ";
- echo "    <td style=\"width:100px\"><font size=-1><i><a href=\"https://hpc.sabanciuniv.edu/graph_all.php?cl=$cluster_name&wn=all\">cluster statistics</a></i></font></td>";
+ echo "    <td style=\"width:100px\"><font size=-1><i><a href=\"/graph_all.php?cl=$cluster_name&wn=all\">cluster statistics</a></i></font></td>";
 echo "
 </tr></form></table>
 ";

@@ -4,4 +4,4 @@
 
 # COLLECTING CLUSTER DATA
 # make sure the hosting server is set up first and working.
-# run collect_data/data_collect.sh on the login node 'once'. This will collect the cluster infrastructure data and send it to the hosting server.
+# run ./collect_data/data_collect.sh on the login node 'once'. This will generate cluster infrastructure data.
