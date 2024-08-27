@@ -24,7 +24,7 @@ This repository contains a suite of Linux scripts designed for performance monit
 3. On the hosting server reach to hosting_src/setup.php page via a browser and complete the setup.
 4. At the login node access to the login_node_src folder as root and configure HPC1.config file according to your specific HPC environment needs as described in its README file.
 5. At the login node run ./login_node_src/collect_data/data_collect.sh once (to collect HPC infrastructure data) and move all the generated txt files to hosting server's /run_as_root/ directory and then on the hosting server run the /run_as_root/set_others.php script (you can simply visit that page).
-6. Enter a crontab entry at the login node (like: */5 * * * *     cd ~/HPC_Monitor/root_version && /usr/bin/php ~/HPC_Monitor/root_version/sap_cron2.php for 5 minutes benchmarking intervals).
+6. Enter a crontab entry at the login node (like: */5 * * * * cd ~/HPC_Monitor/root_version && /usr/bin/php ~/HPC_Monitor/root_version/sap_cron2.php for 5 minutes benchmarking intervals).
 7. Access the performance monitoring GUI through the web server to view the collected data.
 
 ## Requirements
