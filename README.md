@@ -27,6 +27,8 @@ This repository contains a suite of Linux scripts designed for performance monit
 6. Enter a crontab entry at the login node (like: */5 * * * * cd ~/HPC_Monitor/root_version && /usr/bin/php ~/HPC_Monitor/root_version/sap_cron2.php for 5 minutes benchmarking intervals).
 7. Access the performance monitoring GUI through the web server to view the collected data.
 
+For a more detailed version of the installation, check out [this guide](https://www.serdaracir.net/hpc/hpc-monitoring-tool-installation/).
+
 ## Requirements
 
 - Linux-based HPC environment: PHP7, iperf3, inxi
