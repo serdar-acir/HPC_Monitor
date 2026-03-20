@@ -49,11 +49,11 @@ For a more detailed and up-to-date version of the installation, check out [this 
 ## Project Images
 
 <p align="center">
-  <img src="./images/Image1.jpg" alt="Image 1" width="100%">
-  <img src="./images/Image2.jpg" alt="Image 2" width="100%">
-  <img src="./images/Image3.jpg" alt="Image 3" width="100%">
-  <img src="./images/Image4.jpg" alt="Image 4" width="100%">
-  <img src="./images/Image5.jpg" alt="Image 5" width="100%">
+  <img src="./images/Image11.jpg" alt="Image 1" width="100%">
+  <img src="./images/Image12.jpg" alt="Image 2" width="100%">
+  <img src="./images/Image13.jpg" alt="Image 3" width="100%">
+  <img src="./images/Image14.jpg" alt="Image 4" width="100%">
+  <img src="./images/Image15.jpg" alt="Image 5" width="100%">
 </p>
 
 ## Contributing
