@@ -1,183 +1,392 @@
 <?php
-error_reporting(E_ERROR | E_PARSE);
+declare(strict_types=1);
+
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 
 require "mysql_ops.php";
-connect_db_tr ($database);
-?>
+connect_db_tr($database);
 
+$cluster_name = $_POST['cluster_name'] ?? $_GET['cluster_name'] ?? $_COOKIE['clname'] ?? '';
+$mylink = '';
+$query_ek3 = '';
+$nothing_selected = '';
+
+if ($cluster_name === '') {
+    $randomIndex = array_rand($clusters);
+    $cluster_name = $clusters[$randomIndex];
+    $nothing_selected = 'selected';
+}
+
+setcookie("clname", (string)$cluster_name, 0);
+
+$cl_index = array_search($cluster_name, $clusters, true);
+if ($cl_index !== false && isset($descs[$cl_index])) {
+    $desc = $descs[$cl_index];
+} else {
+    $desc = "";
+}
+
+$cluster_name_i = strtoupper(str_replace("HPC", '', (string)$cluster_name));
+$random = mt_rand(1, 9999999);
+?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="refresh" content="600">
 <meta charset="UTF-8">
-<?php $random = mt_rand(1,9999999); ?>
 <link rel="stylesheet" href="styles.css?random=<?php echo $random; ?>">
+<title>HPC Monitor</title>
 </head>
+
 <body>
+<div class="page">
 
 <?php
-$cluster_name = $_POST['cluster_name']; if ($cluster_name == NULL) $cluster_name = $_GET['cluster_name']; if ($cluster_name == NULL AND isset($_COOKIE['clname'])) $cluster_name = $_COOKIE['clname'];
-if ($cluster_name == '') { $randomIndex = rand(0, 1); $cluster_name = $clusters[$randomIndex]; $nothing_selected = "selected"; }
-else { $cluster_name_word = $cluster_name."_selected";  $$cluster_name_word = "selected"; setcookie("clname", $cluster_name, 0); }
+$adm_link = '<span class="admin-link"><a href="/admin.php">admin</a></span>';
 
-$cl_index = array_search($cluster_name, $clusters);
-if ($index !== false) { $desc = $descs[$index]; } else { $desc = ""; }
+echo "<div class='topbar'>
+        <div class='title-wrap'>
+            <h3>" . htmlspecialchars($cluster_name_i, ENT_QUOTES, 'UTF-8') . " Monitor</h3>
+            <div class='subtitle'>$adm_link >>> hello User</div>
+        </div>
+      </div>";
 
-$adm_link = "<font size=-3><i><a href=\"/admin.php?$mylink\">admin</a></i></font>";
+$enson_report_time = get_that_generic(
+    "temp_monitoringtable",
+    $cluster_name,
+    "limit",
+    "time",
+    "report_time",
+    "id DESC"
+);
 
-//en son report_time al
-$cluster_name_i = strtoupper (str_replace("HPC", '', $cluster_name));
-echo "<h3>$cluster_name_i Monitor - $adm_link >>> hello User</h3>";
-$enson_report_time = get_that_generic ("temp_monitoringtable", $cluster_name, "limit", "time", "report_time", "id DESC");
+if ($enson_report_time === "yok" || $enson_report_time === null || $enson_report_time === '') {
+    $result_generic = "yok";
+    $nrows = 0;
+} else {
+    $result_generic = get_all_generic(
+        "temp_monitoringtable",
+        $cluster_name,
+        "report_time",
+        $enson_report_time,
+        "node_name",
+        $query_ek3
+    );
+    $nrows = ($result_generic === "yok") ? 0 : mysqli_num_rows($result_generic);
+}
 
-$result_generic = get_all_generic ("temp_monitoringtable", "$cluster_name", "report_time", $enson_report_time, "node_name", $query_ek3);
-$nrows = mysqli_num_rows($result_generic);
-for ($i=1; $i<=$nrows; $i++) { //for1 start
- $row19=mysqli_fetch_array($result_generic ,MYSQLI_ASSOC);
- $node_name[$i]= $row19['node_name'];
- $node_stat[$i]= $row19['node_stat'];
- $node_stat_extra[$i]= node_status_desc ($row19['node_stat']);
- $cpu_usage[$i]= $row19['cpu_usage'];
- $cpu_usage_extra[$i]= "<b>Top two processes of the moment:</b><br>".nl2br($row19['top_processes']);
- $ram_usage[$i]= $row19['ram_usage'];
- $ram_usage_extra[$i]= "<b>Memory outlook of the moment:</b><br>"."mem_total: ".sprintf ("%.2f", $row19['mem_total']/1000000)." GB<br>mem_available. ".sprintf ("%.2f", $row19['mem_available']/1000000)." GB<br>swap_used: ".sprintf ("%.2f", $row19['swap_used']/1000000)." GB";
- $disk_max[$i] = get_generic2 ("hwtable", $cluster_name, "node_name", $node_name[$i],"category","hw_ref_diskmaxMBs",NULL,NULL, "veri");
- if (is_numeric($row19['disk_write_MBs'])) { $disk_usage[$i] = $row19['disk_write_MBs']; if ($disk_usage[$i] <0) $disk_usage[$i] = "-1"; }
- $disk_usage_extra[$i]= $disk_usage[$i]." MB/s is the maximum sequential write speed that can be achieved at this moment.<br>------<br><b>Top disk write speed observed so far:</b> ".$disk_max[$i]." MB/s";
- $home_max[$i] = sprintf('%.2f',get_generic2 ("hwtable", $cluster_name, "node_name", $node_name[$i], "category","hw_ref_homemaxMbs",NULL,NULL, "veri")/1000); if ($home_max[$i] == "yok") $home_max[$i] = 1;
- if (is_numeric($row19['nw_speed_Mbs'])) { $nw_usage[$i] = sprintf('%.2f',$row19['nw_speed_Mbs']/1000); if ($nw_usage[$i] <0) $nw_usage[$i] = "-1"; } 
- $nw_usage_extra[$i]= $nw_usage[$i]." Gb/s is the maximum network transfer speed that can be achieved at this moment.<br>------<br><b>Top network transfer speed observed so far:</b> ".$home_max[$i]." Gb/s";
- $gpu_usage[$i]= $row19['gpu_usage']; $gpu_usage_pieces[$i] = explode("||", $gpu_usage[$i]); $gpu_adet[$i]=0;
- foreach ($gpu_usage_pieces[$i] as $key => $value) { //foreach start
-  if (stristr($value, "NVIDIA") OR stristr($value, "Tesla") ) { //if2 start
-   $gpu_line[$i][$gpu_adet[$i]] = explode(":", $value);
-   $gpu_name[$i][$gpu_adet[$i]] = trim ( str_replace(" ", '_', $gpu_line[$i][$gpu_adet[$i]][0]));
-   $gpu_utilization[$i][$gpu_adet[$i]] = trim( str_replace("%", '', $gpu_line[$i][$gpu_adet[$i]][1]));
-   $gpu_adet[$i]++;
-  } //if2 end
- } //foreach end
-} //for1 end
+/* initialize arrays */
+$node_name = $node_stat = $node_stat_extra = $cpu_usage = $cpu_usage_extra = [];
+$ram_usage = $ram_usage_extra = $disk_usage = $disk_usage_extra = [];
+$nw_usage = $nw_usage_extra = $gpu_usage = $gpu_adet = [];
+$gpu_name = $gpu_utilization = $gpu_usage_pieces = [];
+$disk_max = $home_max = [];
 
-echo "<table><tr><th width=5%>NODE</th><th width=5%>CPU Utilization %</th><th width=5%>Memory Utilization %</th><th width=5%>Storage Nw Speed</th><th width=35%>GPU Utilization %</th><th width=40% colspan=2>$desc</th></tr>";
-for ($i=1; $i<=$nrows; $i++) { //for2 start
- if ($node_stat[$i] == "idle") { //bigif start
-  echo "<tr><th><a href=\"details.php?$mylink&cl=$cluster_name&cn=".$node_name[$i]."\"><div class=\"tooltip\">".$node_name[$i]."</a><span class=\"tooltiptext\"></span></div> </th><td><div class=\"tooltip\">".coloring($cpu_usage[$i],"cpu_usage",0)."<span class=\"tooltiptext\">".$cpu_usage_extra[$i]."</span></div></td><td><div class=\"tooltip\">".coloring($ram_usage[$i],"ram_usage",0)."<span class=\"tooltiptext\">".$ram_usage_extra[$i]."</span></div></td><td><div class=\"tooltip\">".coloring($nw_usage[$i],"nw_usage",$home_max[$i])." Gb/s<span class=\"tooltiptext\">".$nw_usage_extra[$i]."</span></div></td><td>";
+for ($i = 1; $i <= $nrows; $i++) {
+    $row19 = mysqli_fetch_array($result_generic, MYSQLI_ASSOC);
+    if (!$row19) {
+        break;
+    }
 
- if ($gpu_usage[$i] == "-1") echo coloring($gpu_usage[$i],"gpu_usage",0);
- else { //else5 start
-  for ($j=0; $j<$gpu_adet[$i]; $j++) { //for2 start
-   echo str_replace("NVIDIA_", '', $gpu_name[$i][$j])." : %".coloring($gpu_utilization[$i][$j],"gpu_usage",0); if ($gpu_name[$i][$j+1] != NULL) echo " || ";
-  } //for2 end
- } //else5 end
- echo "</td>";
- } //bigif end
- else {
-  echo "<tr><th><a href=\"details.php?$mylink&cl=$cluster_name&cn=".$node_name[$i]."\">".$node_name[$i]."</th><td colspan=4 class=\"blue\"><div class=\"tooltip\">".strtoupper($node_stat[$i])."<span class=\"tooltiptext\">".$node_stat_extra[$i]."</span></div></td>";
- }
- 
-$hw = get_hardware ($cluster_name, $node_name[$i],"hw");
-echo "<td colspan=2><button class=\"collapsible\">".strtoupper($node_name[$i])." Hardware Specs</button><div class=\"content\">$hw</div></td></tr>";
-} //for2 end
-echo "</table>";
-if ( (time() - strtotime($enson_report_time)) / 3600 >= 16) $enson_report_time = "<font color=red size=+1><b>$enson_report_time</b></font>";
-echo "<i>Last sample time: $enson_report_time</i><br>";
-echo "<br>==========================<br>";
-echo "<table border=0 style=\"width:500px\"><form method=\"post\"><tr>
-    <td style=\"width:200px\"><select name='cluster_name' onchange='if(this.value != 0) { this.form.submit(); }'>
-        <option value='' disabled " . (empty($selected_cluster) ? "selected" : "") . ">HPC Clusters</option>";
+    $node_name[$i] = (string)($row19['node_name'] ?? '');
+    $node_stat[$i] = (string)($row19['node_stat'] ?? '');
+    $node_stat_extra[$i] = node_status_desc($node_stat[$i]);
+
+    $cpu_usage[$i] = is_numeric($row19['cpu_usage'] ?? null) ? (string)$row19['cpu_usage'] : "-1";
+    $cpu_usage_extra[$i] = "<b>Top two processes of the moment:</b><br>" . nl2br((string)($row19['top_processes'] ?? ''));
+
+    $mem_total = is_numeric($row19['mem_total'] ?? null) ? (float)$row19['mem_total'] : 0.0;
+    $mem_available = is_numeric($row19['mem_available'] ?? null) ? (float)$row19['mem_available'] : 0.0;
+    $swap_used = is_numeric($row19['swap_used'] ?? null) ? (float)$row19['swap_used'] : 0.0;
+
+    $ram_usage[$i] = is_numeric($row19['ram_usage'] ?? null) ? (string)$row19['ram_usage'] : "-1";
+    $ram_usage_extra[$i] = "<b>Memory outlook:</b><br>"
+        . "mem_total: " . sprintf("%.2f", $mem_total / 1000000) . " GB<br>"
+        . "mem_available: " . sprintf("%.2f", $mem_available / 1000000) . " GB<br>"
+        . "swap_used: " . sprintf("%.2f", $swap_used / 1000000) . " GB";
+
+    $disk_max_raw = get_generic2(
+        "hwtable",
+        $cluster_name,
+        "node_name",
+        $node_name[$i],
+        "category",
+        "hw_ref_diskmaxMBs",
+        null,
+        null,
+        "veri"
+    );
+    $disk_max[$i] = is_numeric($disk_max_raw) ? (float)$disk_max_raw : 0.0;
+
+    $disk_usage[$i] = "-1";
+    if (is_numeric($row19['disk_write_MBs'] ?? null)) {
+        $disk_val = (float)$row19['disk_write_MBs'];
+        if ($disk_val >= 0) {
+            $disk_usage[$i] = (string)$disk_val;
+        }
+    }
+
+    $disk_usage_extra[$i] = $disk_usage[$i] . " MB/s current.<br>------<br><b>Max observed:</b> " . $disk_max[$i] . " MB/s";
+
+    $home_max_raw = get_generic2(
+        "hwtable",
+        $cluster_name,
+        "node_name",
+        $node_name[$i],
+        "category",
+        "hw_ref_homemaxMbs",
+        null,
+        null,
+        "veri"
+    );
+    $home_max[$i] = is_numeric($home_max_raw) ? ((float)$home_max_raw / 1000) : 1.0;
+
+    $nw_usage[$i] = "-1";
+    if (is_numeric($row19['nw_speed_Mbs'] ?? null)) {
+        $nw_val = (float)$row19['nw_speed_Mbs'] / 1000;
+        if ($nw_val >= 0) {
+            $nw_usage[$i] = sprintf('%.2f', $nw_val);
+        }
+    }
+
+    $nw_usage_extra[$i] = $nw_usage[$i] . " Gb/s current.<br>------<br><b>Max observed:</b> " . $home_max[$i] . " Gb/s";
+
+    $gpu_usage[$i] = (string)($row19['gpu_usage'] ?? '-1');
+    $gpu_usage_pieces[$i] = explode("||", $gpu_usage[$i]);
+    $gpu_adet[$i] = 0;
+    $gpu_name[$i] = [];
+    $gpu_utilization[$i] = [];
+
+    foreach ($gpu_usage_pieces[$i] as $value) {
+        if (stripos($value, "NVIDIA") !== false || stripos($value, "Tesla") !== false) {
+            $gpu_line = explode(":", $value, 2);
+            $gpu_name[$i][$gpu_adet[$i]] = trim(str_replace(" ", '_', (string)($gpu_line[0] ?? 'GPU')));
+            $gpu_utilization[$i][$gpu_adet[$i]] = trim(str_replace("%", '', (string)($gpu_line[1] ?? '0')));
+            $gpu_adet[$i]++;
+        }
+    }
+}
+
+echo "<div class='card'><table>
+<tr>
+<th>NODE</th>
+<th>CPU %</th>
+<th>RAM %</th>
+<th>NET Gb/s</th>
+<th>GPU %</th>
+<th colspan='2'>" . htmlspecialchars($desc, ENT_QUOTES, 'UTF-8') . "</th>
+</tr>";
+
+for ($i = 1; $i <= $nrows; $i++) {
+    if (!isset($node_name[$i])) {
+        continue;
+    }
+
+    $details_link = "details.php?cl=" . urlencode($cluster_name) . "&cn=" . urlencode($node_name[$i]);
+
+    if ($node_stat[$i] === "idle") {
+        echo "<tr>
+        <td><a href=\"" . htmlspecialchars($details_link, ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($node_name[$i], ENT_QUOTES, 'UTF-8') . "</a></td>
+
+        <td><div class='tooltip'>" . coloring($cpu_usage[$i], "cpu_usage", 0) . "
+        <span class='tooltiptext'>" . $cpu_usage_extra[$i] . "</span></div></td>
+
+        <td><div class='tooltip'>" . coloring($ram_usage[$i], "ram_usage", 0) . "
+        <span class='tooltiptext'>" . $ram_usage_extra[$i] . "</span></div></td>
+
+        <td><div class='tooltip'>" . coloring($nw_usage[$i], "nw_usage", $home_max[$i]) . " Gb/s
+        <span class='tooltiptext'>" . $nw_usage_extra[$i] . "</span></div></td>
+
+        <td>";
+
+        if ($gpu_usage[$i] === "-1") {
+            echo coloring($gpu_usage[$i], "gpu_usage", 0);
+        } else {
+            for ($j = 0; $j < $gpu_adet[$i]; $j++) {
+                $gpuLabel = str_replace("NVIDIA_", '', $gpu_name[$i][$j]);
+                echo htmlspecialchars($gpuLabel, ENT_QUOTES, 'UTF-8') . " : %" . coloring($gpu_utilization[$i][$j], "gpu_usage", 0);
+                if (isset($gpu_name[$i][$j + 1])) {
+                    echo " || ";
+                }
+            }
+        }
+
+        echo "</td>";
+    } else {
+        echo "<tr>
+        <td><a href=\"" . htmlspecialchars($details_link, ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($node_name[$i], ENT_QUOTES, 'UTF-8') . "</a></td>
+        <td colspan='4' class='blue'>
+        <div class='tooltip'>" . htmlspecialchars(strtoupper($node_stat[$i]), ENT_QUOTES, 'UTF-8') . "
+        <span class='tooltiptext'>" . htmlspecialchars($node_stat_extra[$i], ENT_QUOTES, 'UTF-8') . "</span></div></td>";
+    }
+
+    $hw = get_hardware($cluster_name, $node_name[$i], "hw");
+
+    echo "<td colspan='2'>
+    <button class='collapsible link-like'>" . htmlspecialchars($node_name[$i], ENT_QUOTES, 'UTF-8') . " Hardware</button>
+    <div class='content'>$hw</div>
+    </td></tr>";
+}
+
+echo "</table></div>";
+
+if ($enson_report_time !== "yok" && $enson_report_time !== null && $enson_report_time !== '') {
+    $ts = strtotime((string)$enson_report_time);
+    if ($ts !== false && ((time() - $ts) / 3600 >= 16)) {
+        $enson_report_time = "<span class='stale'>" . htmlspecialchars((string)$enson_report_time, ENT_QUOTES, 'UTF-8') . "</span>";
+    } else {
+        $enson_report_time = htmlspecialchars((string)$enson_report_time, ENT_QUOTES, 'UTF-8');
+    }
+} else {
+    $enson_report_time = "NA";
+}
+
+echo "<div class='foot'>Last sample time: $enson_report_time</div>";
+
+echo "<hr class='sep'>";
+
+echo "<div class='controls'>
+<form method='post'>
+<select name='cluster_name' onchange='this.form.submit()'>
+<option value='' disabled $nothing_selected>HPC Clusters</option>";
+
 foreach ($clusters as $cluster) {
-    $selected = ($selected_cluster == $cluster) ? "selected" : "";
-    echo "<option value='$cluster' $selected>$cluster</option>";
+    $selected = ($cluster_name === $cluster) ? "selected" : "";
+    $cluster_esc = htmlspecialchars((string)$cluster, ENT_QUOTES, 'UTF-8');
+    echo "<option value='$cluster_esc' $selected>$cluster_esc</option>";
 }
 
-echo "</select></td> ";
- echo "    <td style=\"width:100px\"><font size=-1><i><a href=\"/graph_all.php?cl=$cluster_name&wn=all\">cluster statistics</a></i></font></td>";
-echo "
-</tr></form></table>
-";
+$cluster_stats_link = "/graph_all.php?cl=" . urlencode($cluster_name) . "&wn=all";
 
-disconnect_db_tr ();
+echo "</select>
+<a class='cluster-link' href=\"" . htmlspecialchars($cluster_stats_link, ENT_QUOTES, 'UTF-8') . "\">cluster statistics</a>
+</form>
+</div>";
 
-function coloring ($input_value, $kat, $max_value) {
- if ($input_value == "-1") return "<font color=grey>NA</font>";
- if ($kat == "disk_usage" OR $kat == "nw_usage") { //if1 start
-  $percentage = round(($input_value * 100) / $max_value);
-  if ($percentage >= 90) return "<font color=green>$input_value</font>";
-  else if ($percentage > 75) return "<font color=black>$input_value</font>";
-  else if ($percentage > 50) return "<font color=darkblue>$input_value</font>";
-  else return "<font color=red>$input_value</font>";
- } //if1 end
- else { //else start
-  if ($input_value < 50) return "<font color=green>$input_value</font>";
-  else if ($input_value < 75) return "<font color=black>$input_value</font>";
-  else if ($input_value < 95) return "<font color=darkblue>$input_value</font>";
-  else return "<font color=red>$input_value</font>";
- } //else end
+disconnect_db_tr();
+
+/* FUNCTIONS */
+
+function coloring($input_value, $kat, $max_value)
+{
+    if ((string)$input_value === "-1") {
+        return "<span style='color:grey'>NA</span>";
+    }
+
+    if ($kat === "disk_usage" || $kat === "nw_usage") {
+        $input_num = is_numeric($input_value) ? (float)$input_value : -1;
+        $max_num = is_numeric($max_value) ? (float)$max_value : 0.0;
+
+        if ($input_num < 0) {
+            return "<span style='color:grey'>NA</span>";
+        }
+
+        $percentage = $max_num > 0 ? round(($input_num * 100) / $max_num) : 0;
+
+        if ($percentage >= 90) return "<span style='color:green'>$input_value</span>";
+        if ($percentage > 75) return "<span style='color:white'>$input_value</span>";
+        if ($percentage > 50) return "<span style='color:#5da0ff'>$input_value</span>";
+        return "<span style='color:#ff6b6b'>$input_value</span>";
+    }
+
+    $input_num = is_numeric($input_value) ? (float)$input_value : -1;
+    if ($input_num < 0) {
+        return "<span style='color:grey'>NA</span>";
+    }
+
+    if ($input_num < 50) return "<span style='color:green'>$input_value</span>";
+    if ($input_num < 75) return "<span style='color:white'>$input_value</span>";
+    if ($input_num < 95) return "<span style='color:#5da0ff'>$input_value</span>";
+    return "<span style='color:#ff6b6b'>$input_value</span>";
 }
 
-function get_hardware ($cluster_name, $node_name, $type) {
-global $connection;
-$result_generic2 = get_all_generic ("hwtable", "$cluster_name", "node_name", $node_name, "hw_id", '');
-if ($result_generic2 == "yok") $nrows = 0;
-else $nrows = mysqli_num_rows($result_generic2);
-if ($nrows <= 1) return "teknik hata!";
-for ($i=1; $i<=$nrows; $i++) { //forall start
- $row19=mysqli_fetch_array($result_generic2 ,MYSQLI_ASSOC);
-  $hw_list = $hw_list."<div class=\"tooltip\"><font size=+2>".$row19['category']."</font><span class=\"tooltiptext\">".nl2br(nl2br($row19['veri']))."</span></div><br>
-";
-} //forall end
+function get_hardware($cluster_name, $node_name, $type)
+{
+    $result_generic2 = get_all_generic("hwtable", $cluster_name, "node_name", $node_name, "hw_id", '');
+    if ($result_generic2 === "yok") {
+        $nrows = 0;
+    } else {
+        $nrows = mysqli_num_rows($result_generic2);
+    }
 
-if ($type == "hw") { //if2 start
- return "$hw_list<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>";
-} //if2 end
+    if ($nrows < 1) {
+        return "teknik hata!";
+    }
+
+    $hw_list = "";
+
+    for ($i = 1; $i <= $nrows; $i++) {
+        $row19 = mysqli_fetch_array($result_generic2, MYSQLI_ASSOC);
+        if (!$row19) {
+            break;
+        }
+
+        $category = htmlspecialchars((string)($row19['category'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $veri = nl2br(nl2br(htmlspecialchars((string)($row19['veri'] ?? ''), ENT_QUOTES, 'UTF-8')));
+
+$hw_list .= "<div class='hw-item'>
+  <div class='hw-title'><strong>".$row19['category']."</strong></div>
+  <div class='hw-body'>".nl2br(htmlspecialchars($row19['veri'], ENT_QUOTES, 'UTF-8'))."</div>
+</div>";
+
+    }
+
+    if ($type === "hw") {
+        return $hw_list;
+    }
+
+    return $hw_list;
 }
 
+function listformat($list, $category)
+{
+    $list = trim((string)$list);
+    $parca = explode(":", $list);
+    $sayi = count($parca);
+    $data = "";
 
-function listformat ($list, $category) {
- $list = trim($list);
- $parca = explode(":", $list); $sayi = count($parca);
- if ($parca[0] == "Machine") {$data= "<b>Server Information</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "System") {$data= "<b>OS Information</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "PCI Slots") {$data= "<b>PCI Slots</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "CPU") {$data= "<b>CPU Information</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "Memory") {$data= "<b>Memory Information</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "Graphics") {$data= "<b>GPU Information</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "Network") {$data= "<b>Network Information</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "Drives") {$data= "<b>Drive Information</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "Partition") {$data= "<b>Partitions</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "Unmounted") {$data= "<b>Unmounted Partitions</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "Logical") {$data= "<b>Logical Volumes</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
- else if ($parca[0] == "RAID") {$data= "<b>RAID Controllers</b><br>"; for ($i=1;$i<=$sayi; $i++) $data=$data.$parca[$i]."<br>"; }
+    if (($parca[0] ?? '') === "Machine") {$data= "<b>Server Information</b><br>";}
+    else if (($parca[0] ?? '') === "System") {$data= "<b>OS Information</b><br>";}
+    else if (($parca[0] ?? '') === "PCI Slots") {$data= "<b>PCI Slots</b><br>";}
+    else if (($parca[0] ?? '') === "CPU") {$data= "<b>CPU Information</b><br>";}
+    else if (($parca[0] ?? '') === "Memory") {$data= "<b>Memory Information</b><br>";}
+    else if (($parca[0] ?? '') === "Graphics") {$data= "<b>GPU Information</b><br>";}
+    else if (($parca[0] ?? '') === "Network") {$data= "<b>Network Information</b><br>";}
+    else if (($parca[0] ?? '') === "Drives") {$data= "<b>Drive Information</b><br>";}
+    else if (($parca[0] ?? '') === "Partition") {$data= "<b>Partitions</b><br>";}
+    else if (($parca[0] ?? '') === "Unmounted") {$data= "<b>Unmounted Partitions</b><br>";}
+    else if (($parca[0] ?? '') === "Logical") {$data= "<b>Logical Volumes</b><br>";}
+    else if (($parca[0] ?? '') === "RAID") {$data= "<b>RAID Controllers</b><br>";}
 
- return $data;
+    for ($i = 1; $i <= $sayi; $i++) {
+        if (isset($parca[$i])) {
+            $data .= htmlspecialchars((string)$parca[$i], ENT_QUOTES, 'UTF-8') . "<br>";
+        }
+    }
+
+    return $data;
 }
-
-
 ?>
-
 
 <script>
 var coll = document.getElementsByClassName("collapsible");
-var i;
 
-for (i = 0; i < coll.length; i++) {
+for (var i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active");
     var content = this.nextElementSibling;
-    if (content.style.maxHeight){
+    if (content.style.maxHeight) {
       content.style.maxHeight = null;
     } else {
       content.style.maxHeight = content.scrollHeight + "px";
-    } 
+    }
   });
 }
 </script>
 
+</div>
 </body>
-<!--/////////////////////////////////////////////-->
-<!--//////for questions://///////////////////////-->
-<!--//////serdar.acir@sabanciuniv.edu////////////-->
-<!--/////////////////////////////////////////////-->
 </html>
 

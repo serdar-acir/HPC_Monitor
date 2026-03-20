@@ -1,4 +1,4 @@
-# HPC Performance Monitoring Tool (PHP7)
+# HPC Performance Monitoring Tool (PHP8)
 A real-time HPC performance monitoring tool with automatic node detection and basic benchmarking. <b>Please note this is a challenging installation that requires multiple platorms to be managed and multiple tools to be installed. This document is not intended to provide support in case you experience issues. You will need to figure out and solve the issue on your own.</b>
 This repository contains a suite of Linux scripts designed for performance monitoring and resource benchmarking across compute nodes in an HPC environment.
 
@@ -27,15 +27,15 @@ This repository contains a suite of Linux scripts designed for performance monit
 6. Enter a crontab entry at the login node (like: */5 * * * * cd ~/HPC_Monitor/root_version && /usr/bin/php sap_cron2.php for 5 minutes benchmarking intervals).
 7. Access the performance monitoring GUI through the web server to view the collected data.
 
-For a more detailed and up-to-date version of the installation, check out [this guide](https://www.serdaracir.net/hpc/hpc-monitoring-tool-installation/).
+For a more detailed and up-to-date version of the installation, check out [this guide](https://www.serdaracir.net/hpc/hpc-monitoring-tool-installation-php8/).
 
 ## Requirements
 
 - Good understanding of Linux commands and php programming (in case debugging is needed).
 - Root access to all login and compute nodes.
 - Outbound internet access from the login node.
-- Linux-based HPC environment: PHP7, iperf3, inxi (on all login and compute nodes)
-- Hosting environment: Apache2, PHP7, Mysql8
+- Linux-based HPC environment: PHP8, iperf3, inxi (on all login and compute nodes)
+- Hosting environment: Apache2, PHP8, Mysql
 
 ## Limitations
 
