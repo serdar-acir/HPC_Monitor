@@ -1,4 +1,4 @@
-# HPC Performance Monitoring Tool (PHP8)
+# HPC Performance Monitoring Tool
 A real-time HPC performance monitoring tool with automatic node detection and basic benchmarking. <b>Please note this is a challenging installation that requires multiple platorms to be managed and multiple tools to be installed. This document is not intended to provide support in case you experience issues. You will need to figure out and solve the issue on your own.</b>
 This repository contains a suite of Linux scripts designed for performance monitoring and resource benchmarking across compute nodes in an HPC environment.
 
@@ -34,8 +34,8 @@ For a more detailed and up-to-date version of the installation, check out [this 
 - Good understanding of Linux commands and php programming (in case debugging is needed).
 - Root access to all login and compute nodes.
 - Outbound internet access from the login node.
-- Linux-based HPC environment: PHP8, iperf3, inxi (on all login and compute nodes)
-- Hosting environment: Apache2, PHP8, Mysql
+- Linux-based HPC environment: PHP, iperf3, inxi (on all login and compute nodes)
+- Hosting environment: Apache2, PHP, Mysql
 
 ## Limitations
 
